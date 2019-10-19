@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "id": "${id}",
+  "version": "${version}",
+
+  "name": "double cart",
+  "description": "${description}",
+  "authors": [
+    "liach"
+  ],
+  "contact": {
+    "homepage": "https://github.com/${repoOwner}/${repoName}",
+    "sources": "https://github.com/${repoOwner}/${repoName}"
+  },
+
+  "license": "MPL-2.0",
+  "icon": "assets/${id}/icon.png",
+
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "com.github.liachmodded.doublecart.DoubleCartEntry"
+    ]
+  },
+  "mixins": [
+    "doublecart.mixins.json"
+  ],
+
+  "depends": {
+    "fabricloader": "${loaderVersionLimit}",
+    "minecraft": "${minecraftVersionLimit}"
+  }
+}

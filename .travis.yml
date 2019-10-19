@@ -1,0 +1,48 @@
+language: java
+dist: trusty
+sudo: required
+jdk:
+- oraclejdk8
+git:
+  quiet: true
+before_cache:
+- rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
+- rm -fr $HOME/.gradle/caches/*/plugin-resolution/
+cache:
+  directories:
+  - "$HOME/.gradle/caches/"
+  - "$HOME/.gradle/wrapper/"
+jobs:
+  include:
+  - stage: build
+    install: chmod +x ./gradlew
+    script: "./gradlew build -S -i"
+  - stage: deploy
+    install: true
+    script: "./gradlew javadocs build bintrayUpload publishMavenGitHubPublicationToGitHubRepository -S -i"
+    deploy:
+      - provider: pages
+        github_token: "$GITHUB_OAUTH_TOKEN"
+        local_dir: build/docs/javadoc
+        keep_history: true
+        skip_cleanup: true
+        target_branch: gh-pages
+        on:
+          branch: master
+      - provider: releases
+        api_key: "$GITHUB_OAUTH_TOKEN"
+        files: build/libs/*
+        skip_cleanup: true
+        on:
+          branch: master
+          tags: true
+
+stages:
+- build
+- name: deploy
+  if: repo = liachmodded/carttemplate AND env(bintray_key) AND env(GITHUB_OAUTH_TOKEN)
+env:
+  global:
+  - TERM=dumb
+notifications:
+  email: false
