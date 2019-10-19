@@ -24,29 +24,6 @@ dependencies {
     minecraft "com.mojang:minecraft:${project.minecraftVersion}"
     mappings "net.fabricmc:yarn:${project.yarnMappings}"
     modCompile "net.fabricmc:fabric-loader:${project.loaderVersion}"
-
-    // Fabric API. This is technically optional, but you probably want it anyway.
-    // modCompile "net.fabricmc.fabric-api:fabric-api:${project.apiVersion}"
-
-    // PSA: Some older mods, compiled on Loom 0.2.1, might have outdated Maven POMs.
-    // You may need to force-disable transitiveness on them.
-
-    annotationProcessor 'net.fabricmc:fabric-mixin-compile-extensions:0.1.0.+'
-}
-
-sourceSets {
-    code {
-        compileClasspath += sourceSets.main.compileClasspath
-        compileClasspath += configurations.minecraftNamed
-        runtimeClasspath += sourceSets.main.runtimeClasspath
-        compileClasspath += configurations.minecraftNamed
-    }
-    data {
-        compileClasspath += sourceSets.code.compileClasspath
-        compileClasspath += sourceSets.code.output
-        runtimeClasspath += sourceSets.code.compileClasspath
-        runtimeClasspath += sourceSets.code.output
-    }
 }
 
 license {
@@ -56,42 +33,10 @@ license {
     newLine = false
 }
 
-// ensure that the encoding is set to UTF-8, no matter what the system default is
-// this fixes some edge cases with special characters not displaying correctly
-// see http://yodaconditions.net/blog/fix-for-java-file-encoding-problems-with-gradle.html
 tasks.withType(JavaCompile) {
     options.encoding = "UTF-8"
-    // Loom is just so cursed that it does not handle extra source sets nicely
-    options.annotationProcessorPath += configurations.annotationProcessor
-    doFirst {
-        def args = options.compilerArgs
-        project.minecraft {
-            args.add "-AinMapFileNamedIntermediary=" + mappingsProvider.MAPPINGS_TINY.canonicalPath
-            args.add "-AoutMapFileNamedIntermediary=" + mappingsProvider.MAPPINGS_MIXIN_EXPORT.canonicalPath
-            args.add "-AoutRefMapFile=" + new File(destinationDir, refmapName).canonicalPath
-            args.add "-AdefaultObfuscationEnv=named:intermediary"
-        }
-    }
 }
 
-tasks.withType(Javadoc) {
-    options.encoding = 'UTF-8'
-    options.charSet = 'UTF-8'
-    options.links(
-            'https://google.github.io/guava/releases/21.0/api/docs/',
-            'http://asm.ow2.org/asm50/javadoc/user/',
-            'https://docs.oracle.com/javase/8/docs/api/',
-            'http://jenkins.liteloader.com/job/Mixin/javadoc/',
-            'https://logging.apache.org/log4j/2.x/log4j-api/apidocs/'
-            // Need to add minecraft jd publication once there is one available
-    )
-
-    // Disable the crazy super-strict doclint tool in Java 8
-    options.addStringOption('Xdoclint:none', '-quiet')
-}
-
-def dataDir = file("$buildDir/datadump/")
-def dataCacheDir = file("$dataDir/.cache/")
 def outputDirectory = file("$buildDir/pom-properties")
 def pomProperties = file("$outputDirectory/pom.properties")
 
@@ -105,38 +50,11 @@ version=${project.version}
     outputs.file(pomProperties)
 }
 
-task generateData(type: JavaExec) {
-    doFirst {
-        dataDir.mkdirs()
-    }
-
-    classpath = sourceSets.data.runtimeClasspath
-
-    main = project.dataEntry
-
-    // arguments to pass to the application
-
-    workingDir dataDir
-    inputs.files sourceSets.data.output
-    outputs.dir dataDir
-    args dataDir.getAbsolutePath()
-
-    doLast {
-        dataCacheDir.delete()
-    }
-}
-
 processResources {
-    from(generateData.outputs.files) {
-        include "/data/"
-    }
-    from sourceSets.code.resources.srcDirs
-
     inputs.properties "version": project.version, "description": project.description
 
     from(sourceSets.main.resources.srcDirs) {
         include "fabric.mod.json"
-        include "pack.mcmeta"
         expand(
                 "version": project.version,
                 "description": project.description,
@@ -150,7 +68,6 @@ processResources {
 
     from(sourceSets.main.resources.srcDirs) {
         exclude "fabric.mod.json"
-        exclude "pack.mcmeta"
     }
 }
 
@@ -159,28 +76,16 @@ processResources {
 // If you remove this task, sources will not be generated.
 task sourcesJar(type: Jar, dependsOn: classes) {
     archiveClassifier.set "sources"
-    from sourceSets.code.allSource
-}
-
-task javadocs(type: Javadoc) {
-    source = sourceSets.code.allJava
-}
-
-task javadocsJar(type: Jar, dependsOn: javadocs) {
-    archiveClassifier.set "javadocs"
-    from javadocs.destinationDir
+    from sourceSets.main.allSource
 }
 
 jar {
-    dependsOn generateData
-    from sourceSets.code.output
     from "LICENSE"
 }
 
 artifacts {
     archives jar
     archives sourcesJar
-    archives javadocsJar
 }
 
 bintray {
@@ -238,11 +143,6 @@ publishing {
                 classifier = null
                 builtBy remapJar
             }
-            artifact(sourcesJar) {
-                classifier = "sources"
-                builtBy remapSourcesJar
-            }
-            artifact javadocsJar
         }
     }
 

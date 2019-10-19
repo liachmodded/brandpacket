@@ -3,7 +3,7 @@
   "id": "${id}",
   "version": "${version}",
 
-  "name": "double cart",
+  "name": "brandpacket",
   "description": "${description}",
   "authors": [
     "liach"
@@ -14,16 +14,15 @@
   },
 
   "license": "MPL-2.0",
-  "icon": "assets/${id}/icon.png",
 
-  "environment": "*",
+  "environment": "client",
   "entrypoints": {
     "main": [
-      "com.github.liachmodded.doublecart.DoubleCartEntry"
+      "com.github.liachmodded.brandpacket.BrandPacket"
     ]
   },
   "mixins": [
-    "doublecart.mixins.json"
+    "brandpacket.mixins.json"
   ],
 
   "depends": {

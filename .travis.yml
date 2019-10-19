@@ -19,16 +19,8 @@ jobs:
     script: "./gradlew build -S -i"
   - stage: deploy
     install: true
-    script: "./gradlew javadocs build bintrayUpload publishMavenGitHubPublicationToGitHubRepository -S -i"
+    script: "./gradlew build bintrayUpload publishMavenGitHubPublicationToGitHubRepository -S -i"
     deploy:
-      - provider: pages
-        github_token: "$GITHUB_OAUTH_TOKEN"
-        local_dir: build/docs/javadoc
-        keep_history: true
-        skip_cleanup: true
-        target_branch: gh-pages
-        on:
-          branch: master
       - provider: releases
         api_key: "$GITHUB_OAUTH_TOKEN"
         files: build/libs/*
@@ -40,7 +32,7 @@ jobs:
 stages:
 - build
 - name: deploy
-  if: repo = liachmodded/carttemplate AND env(bintray_key) AND env(GITHUB_OAUTH_TOKEN)
+  if: repo = liachmodded/brandpacket AND env(bintray_key) AND env(GITHUB_OAUTH_TOKEN)
 env:
   global:
   - TERM=dumb

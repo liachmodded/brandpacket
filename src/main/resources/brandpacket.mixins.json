@@ -1,0 +1,12 @@
+{
+  "required": true,
+  "package": "com.github.liachmodded.brandpacket.mixin",
+  "compatibilityLevel": "JAVA_8",
+  "client": [
+    "ClientPlayNetworkHandlerMixin",
+    "CustomPayloadC2SPacketAccessor"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
