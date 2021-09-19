@@ -11,27 +11,29 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Properties;
+import java.util.function.Function;
 import net.minecraft.server.dedicated.AbstractPropertiesHandler;
+import net.minecraft.util.registry.DynamicRegistryManager;
 
 public final class BrandPacketSettings extends AbstractPropertiesHandler<BrandPacketSettings> {
 
   private final Properties properties;
-  public final boolean noPacket;
-  public final String brand;
+  public final PropertyAccessor<Boolean> noPacket;
+  public final PropertyAccessor<String> brand;
 
-  private BrandPacketSettings(Properties properties) {
+  public BrandPacketSettings(Properties properties) {
     super(properties);
     this.properties = properties;
-    this.noPacket = parseBoolean("no-packet", false);
-    this.brand = getString("brand", "vanilla");
+    this.noPacket = booleanAccessor("no-packet", false);
+    this.brand = accessor("brand", Function.identity(), "vanilla");
   }
 
   @Override
-  protected BrandPacketSettings create(Properties var1) {
+  protected BrandPacketSettings create(DynamicRegistryManager manager, Properties var1) {
     return new BrandPacketSettings(var1);
   }
 
-  static BrandPacketSettings loadFrom(Path path) {
+  public static BrandPacketSettings loadFrom(Path path) {
     Properties properties = new Properties();
     if (Files.exists(path)) {
       try (BufferedReader reader = Files.newBufferedReader(path)) {
@@ -41,14 +43,14 @@ public final class BrandPacketSettings extends AbstractPropertiesHandler<BrandPa
     }
 
     BrandPacketSettings ret = new BrandPacketSettings(properties);
-    ret.store(path);
+    ret.saveProperties(path);
     return ret;
   }
 
   @Override
-  public void store(Path path) {
+  public void saveProperties(Path path) {
     try (BufferedWriter writer = Files.newBufferedWriter(path)) {
-      this.properties.store(writer, "brandpacket settings");
+      this.properties.store(writer, "brandpacket settings, restart game to apply");
     } catch (IOException ex) {
       BrandPacket.LOGGER.error("Cannot save config file to {}!", path, ex);
     }

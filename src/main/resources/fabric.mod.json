@@ -1,16 +1,16 @@
 {
   "schemaVersion": 1,
-  "id": "${id}",
+  "id": "brandpacket",
   "version": "${version}",
 
   "name": "brandpacket",
-  "description": "${description}",
+  "description": "customize the brand in custom payload packet",
   "authors": [
     "liach"
   ],
   "contact": {
-    "homepage": "https://github.com/${repoOwner}/${repoName}",
-    "sources": "https://github.com/${repoOwner}/${repoName}"
+    "homepage": "https://github.com/liachmodded/brandpacket",
+    "sources": "https://github.com/liachmodded/brandpacket"
   },
 
   "license": "MPL-2.0",
@@ -26,7 +26,7 @@
   ],
 
   "depends": {
-    "fabricloader": "${loaderVersionLimit}",
-    "minecraft": "${minecraftVersionLimit}"
+    "fabricloader": ">=0.11.7",
+    "minecraft": ">=1.17"
   }
 }
