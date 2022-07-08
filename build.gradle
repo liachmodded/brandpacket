@@ -1,5 +1,5 @@
 plugins {
-    id 'fabric-loom' version '0.9-SNAPSHOT'
+    id 'fabric-loom' version '0.12-SNAPSHOT'
     id 'maven-publish'
     id 'org.cadixdev.licenser' version '0.6.1'
 }
@@ -32,7 +32,7 @@ license {
 }
 
 tasks.withType(JavaCompile) {
-    options.release = 16
+    options.release = 17
     options.encoding = "UTF-8"
 }
 
